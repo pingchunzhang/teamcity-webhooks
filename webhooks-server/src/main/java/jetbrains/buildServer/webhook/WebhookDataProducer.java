@@ -9,12 +9,13 @@ import jetbrains.buildServer.webhook.async.events.AsyncEvent;
 public interface WebhookDataProducer {
 
     /**
-     * Generate payload for {@param event} includes fields describing in {@param fields}
+     * Generate payload for {@param event} includes fields describing in {@param fields} according {@param softwareType}
      * @param event event triggered webhook sending
      * @param fields list of required fields in webhook
+     * @param softwareType what is the software of webhook 
      * @return
      */
-    String getJson(AsyncEvent event, String fields);
+    String getJson(AsyncEvent event, String fields, String softwareType);
 
     /**
      * @return true if webhook payload can be generate for {@param event},

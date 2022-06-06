@@ -59,7 +59,7 @@ public class WebhooksEventListener implements AsyncEventListener {
             if (isWebhooksEnabled(project, event.getEventType())) {
                 String webhooksUrl = getWebhooksUrl(project);
                 if (jsonProducer.support(event)) {
-                    String eventData = jsonProducer.getJson(event, getResponseFields(project, event.getEventType()));
+                    String eventData = jsonProducer.getJson(event, getResponseFields(project, event.getEventType()), getWebhookSoftwareType(project));
                     sendWithRetry(webhooksUrl, getWebhooksCredential(project), eventData, getRetryCount(project));
                     lastErrorCodeMap.remove(projectKey);
                 } else {
@@ -129,6 +129,11 @@ public class WebhooksEventListener implements AsyncEventListener {
         return project.getInternalParameterValue("teamcity.internal.webhooks." + event + ".fields", "");
     }
 
+    private String getWebhookSoftwareType(ProjectEx project) {
+        final String software = project.getInternalParameterValue("teamcity.internal.webhooks.software", "");
+        return software;
+    }
+
     private void sendWithRetry(String uri, SimpleCredentials simpleCredentials, String json, Integer retryCount) {
         AtomicInteger retryCountRef = new AtomicInteger(retryCount);
 
@@ -162,6 +167,7 @@ public class WebhooksEventListener implements AsyncEventListener {
                     .onException(exception)
                     .onErrorResponse(error);
 
+            LOG.warn(format("xxx send json %s", json));
             requestHandler.doRequest(request.build());
 
         } catch (URISyntaxException ex) {
