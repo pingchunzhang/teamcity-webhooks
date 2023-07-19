@@ -112,18 +112,16 @@ public class RestApiProducer implements WebhookDataProducer {
             JSONArray feishuContent_tmp = new JSONArray();
 
             if (!eventType.equals("BUILD_STARTED")){
-                String status = (String) jObject.getOrDefault("status", "success");
+                // If the build succeed, the statusText is 'Success'.
+                // Otherwise, statusText contains the reason why the build failed.
+                // For example:
+                //    COREDUMP Tests failed: 160 (142 new), passed: 260
+                String status = (String) jObject.getOrDefault("statusText", "success");
                 JSONObject feishuStatus = new JSONObject();
                 feishuStatus.put("tag", "text");
                 feishuStatus.put("text", "status: " + status + '\n');
 
-                String state = (String) jObject.getOrDefault("state", "finished");
-                JSONObject feishuState = new JSONObject();
-                feishuState.put("tag", "text");
-                feishuState.put("text", "state: " + state + '\n');
-
                 feishuContent_tmp.add(feishuStatus);
-                feishuContent_tmp.add(feishuState);
             }
 
             String build_id = (String) jObject.get("buildTypeId");
@@ -147,7 +145,7 @@ public class RestApiProducer implements WebhookDataProducer {
             tcUrl.put("tag", "a");
             tcUrl.put("text", "teamcity url \n");
             tcUrl.put("href", weburl);
-            
+
             feishuContent_tmp.add(feishuBuild);
             feishuContent_tmp.add(feishuUrlkey);
             feishuContent_tmp.add(tcUrl);
